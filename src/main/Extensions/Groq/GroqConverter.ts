@@ -1,6 +1,8 @@
 import https from 'https';
-const apiKey = "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";
-async function getChatCompletion(prompt) {
+import { mode } from 'mathjs';
+
+async function getChatCompletion(prompt, apiKey, model) {
+    console.log(prompt,apiKey,model)
     const data = JSON.stringify({
         messages: [
             {
@@ -8,7 +10,7 @@ async function getChatCompletion(prompt) {
                 content: prompt
             }
         ],
-        model: "llama3-8b-8192"
+        model: model
     });
 
     const options = {
@@ -51,12 +53,12 @@ async function getChatCompletion(prompt) {
 }
 
 export class GroqConverter {
-    public static async encode(payload: string): string {
-        const response = await getChatCompletion(payload);
+    public static async encode(payload: string, apiKey: string, model: string): string {
+        const response = await getChatCompletion(payload, apiKey, model);
         return response.choices[0].message.content;
     }
 
-    public static decode(payload: string): string {
+    public static decode(payload: string, apiKey: string): string {
         return "buh"
     }
 }

@@ -8,9 +8,10 @@ export class GroqModule implements ExtensionModule {
     public bootstrap(dependencyRegistry: DependencyRegistry<Dependencies>): ExtensionBootstrapResult {
         const assetPathResolver = dependencyRegistry.get("AssetPathResolver");
         const translator = dependencyRegistry.get("Translator");
+        const settingsManager = dependencyRegistry.get("SettingsManager");
 
         return {
-            extension: new Groq(assetPathResolver, translator),
+            extension: new Groq(assetPathResolver, translator, settingsManager),
         };
     }
 }

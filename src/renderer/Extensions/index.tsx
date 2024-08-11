@@ -2,7 +2,7 @@ import { useExtensionProps } from "@Core/Hooks";
 import type { ReactElement } from "react";
 import { ApplicationSearchSettings } from "./ApplicationSearch";
 import { Base64Conversion } from "./Base64Conversion";
-import { Groq } from "./Groq";
+import { Groq, GroqSettings } from "./Groq";
 import { BrowserBookmarksSettings } from "./BrowserBookmarks";
 import { CalculatorSettings } from "./Calculator";
 import { ColorConverterSettings } from "./ColorConverter";
@@ -31,6 +31,7 @@ export const getExtension = (extensionId: string): ExtensionReactElements | unde
         },
         Groq: {
             extension: <Groq {...props} />,
+            settings: <GroqSettings />,
         },
         BrowserBookmarks: {
             settings: <BrowserBookmarksSettings />,

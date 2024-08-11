@@ -19,7 +19,7 @@ export const Groq = ({ contextBridge, goBack }: ExtensionProps) => {
 
     const [convertedText, setConvertedText] = useState<string>("");
 
-    const { value: llmModel, updateValue: setSourceLLM } = useExtensionSetting<string>({
+    const { value: llmModel, updateValue: setDefaultLLM } = useExtensionSetting<string>({
         extensionId,
         key: "defaultLLM",
     });
@@ -58,7 +58,7 @@ export const Groq = ({ contextBridge, goBack }: ExtensionProps) => {
                         id="llmModel"
                         className="non-draggable-area"
                         value={llmModels[llmModel]}
-                        onOptionSelect={(_, { optionValue }) => optionValue && setSourceLLM(optionValue)}
+                        onOptionSelect={(_, { optionValue }) => optionValue && setDefaultLLM(optionValue)}
                     >
                         {Object.keys(llmModels).map((key) => (
                             <Option value={key} key={key}>

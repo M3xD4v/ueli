@@ -17,32 +17,17 @@ export const GroqSettings = () => {
         key: "apiKey",
         isSensitive: true,
     });
-    const { value: defaultLLM, updateValue: setdefaultLLM } = useExtensionSetting<string>({
+    const { value: defaultLLM, updateValue: setDefaultLLM } = useExtensionSetting<string>({
         extensionId,
-        key: "test",
-        isSensitive: true,
+        key: "defaultLLM",
     });
 
-
-    const { value: sourceLanguage, updateValue: setSourceLanguage } = useExtensionSetting<string>({
-        extensionId,
-        key: "defaultSourceLanguage",
-    });
-
-    const { value: targetLanguage, updateValue: setTargetLanguage } = useExtensionSetting<string>({
-        extensionId,
-        key: "defaultTargetLanguage",
-    });
-
-    const sourceLanguageVirtualizerMeasure = useStaticVirtualizerMeasure({
+    const sourceModelsVirtualizerMeasure = useStaticVirtualizerMeasure({
         defaultItemSize: 20,
         direction: "vertical",
     });
 
-    const targetLanguageVirtzalizerMeasure = useStaticVirtualizerMeasure({
-        defaultItemSize: 20,
-        direction: "vertical",
-    });
+
 
     return (
         <SettingGroupList>
@@ -56,19 +41,19 @@ export const GroqSettings = () => {
                     }
                 />
                 <Setting
-                    label="Default source language"
+                    label="Model"
                     control={
                         <Dropdown
-                            value={llmModels[sourceLanguage]}
-                            onOptionSelect={(_, { optionValue }) => optionValue && setSourceLanguage(optionValue)}
-                            selectedOptions={[sourceLanguage]}
-                            listbox={{ ref: sourceLanguageVirtualizerMeasure.scrollRef, style: { maxHeight: 145 } }}
+                            value={llmModels[defaultLLM]}
+                            onOptionSelect={(_, { optionValue }) => optionValue && setDefaultLLM(optionValue)}
+                            selectedOptions={[defaultLLM]}
+                            listbox={{ ref: sourceModelsVirtualizerMeasure.scrollRef, style: { maxHeight: 145 } }}
                         >
                             <Virtualizer
                                 numItems={Object.keys(llmModels).length}
-                                virtualizerLength={sourceLanguageVirtualizerMeasure.virtualizerLength}
-                                bufferItems={sourceLanguageVirtualizerMeasure.bufferItems}
-                                bufferSize={sourceLanguageVirtualizerMeasure.bufferSize}
+                                virtualizerLength={sourceModelsVirtualizerMeasure.virtualizerLength}
+                                bufferItems={sourceModelsVirtualizerMeasure.bufferItems}
+                                bufferSize={sourceModelsVirtualizerMeasure.bufferSize}
                                 itemSize={20}
                             >
                                 {(i) => (
@@ -78,35 +63,6 @@ export const GroqSettings = () => {
                                         text={Object.values(llmModels)[i]}
                                     >
                                         {Object.values(llmModels)[i]}
-                                    </Option>
-                                )}
-                            </Virtualizer>
-                        </Dropdown>
-                    }
-                />
-                <Setting
-                    label="Default target language"
-                    control={
-                        <Dropdown
-                            value={targetLanguages[targetLanguage]}
-                            onOptionSelect={(_, { optionValue }) => optionValue && setTargetLanguage(optionValue)}
-                            selectedOptions={[targetLanguage]}
-                            listbox={{ ref: targetLanguageVirtzalizerMeasure.scrollRef, style: { maxHeight: 145 } }}
-                        >
-                            <Virtualizer
-                                numItems={Object.keys(targetLanguages).length}
-                                virtualizerLength={targetLanguageVirtzalizerMeasure.virtualizerLength}
-                                bufferItems={targetLanguageVirtzalizerMeasure.bufferItems}
-                                bufferSize={targetLanguageVirtzalizerMeasure.bufferSize}
-                                itemSize={20}
-                            >
-                                {(i) => (
-                                    <Option
-                                        key={Object.keys(targetLanguages)[i]}
-                                        value={Object.keys(targetLanguages)[i]}
-                                        text={Object.values(targetLanguages)[i]}
-                                    >
-                                        {Object.values(targetLanguages)[i]}
                                     </Option>
                                 )}
                             </Virtualizer>

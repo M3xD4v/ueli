@@ -27,7 +27,6 @@ export const Converter = ({ setConvertedText, encodePlaceholder, decodePlacehold
     };
 
     const performConversion = async () => {
-        console.log("test")
         const result = await convertText(input.payload, input.action);
         setConversionResult(result);
         setConvertedText(result);

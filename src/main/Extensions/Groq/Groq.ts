@@ -5,21 +5,29 @@ import { type SearchResultItem, SearchResultItemActionUtility } from "@common/Co
 import type { Image } from "@common/Core/Image";
 import type { InvocationArgument } from "@common/Extensions/Groq";
 import { GroqConverter } from "./GroqConverter";
+import type { SettingsManager } from "@Core/SettingsManager";
+import type { Settings } from "./Settings";
+import { getExtensionSettingKey } from "@common/Core/Extension";
 
 export class Groq implements Extension {
     public readonly id = "Groq";
     public readonly name = "Groq";
 
     public readonly author = {
-        name: "Christopher Steiner",
-        githubUserName: "ChristopherSteiner",
+        name: "Archient",
+        githubUserName: "Archient",
     };
 
     public constructor(
         private readonly assetPathResolver: AssetPathResolver,
         private readonly translator: Translator,
+        private readonly settingsManager: SettingsManager
     ) {}
 
+    private readonly defaultSettings: Settings = {
+        apiKey: "",
+        defaultLLM: "Auto",
+    };
     public async getSearchResultItems(): Promise<SearchResultItem[]> {
         const { t } = this.translator.createT(this.getI18nResources());
 
@@ -39,7 +47,11 @@ export class Groq implements Extension {
     }
 
     public async invoke({ action, payload }: InvocationArgument): Promise<string> {
-        return action === "encode" ? GroqConverter.encode(payload) : GroqConverter.decode(payload);
+        const Model = this.settingsManager.getValue(
+            getExtensionSettingKey(this.id, "defaultLLM"),
+            this.defaultSettings.defaultLLM,
+        );
+        return action === "encode" ? GroqConverter.encode(payload, this.getApiKey(), Model) : GroqConverter.decode(payload, this.getApiKey());
     }
 
     public isSupported(): boolean {
@@ -52,7 +64,7 @@ export class Groq implements Extension {
 
     public getImage(): Image {
         return {
-            url: `file://${this.assetPathResolver.getExtensionAssetPath(this.id, "base64-conversion.png")}`,
+            url: `file://${this.assetPathResolver.getExtensionAssetPath(this.id, "Groq.png")}`,
         };
     }
 
@@ -68,5 +80,18 @@ export class Groq implements Extension {
                 decodePlaceHolder: "Output",
             }
         };
+    }
+    private getApiKey(): string {
+        const apiKey = this.settingsManager.getValue<string | undefined>(
+            getExtensionSettingKey(this.id, "apiKey"),
+            undefined,
+            true,
+        );
+
+        if (!apiKey) {
+            throw new Error("Missing Groq API key");
+        }
+        
+        return apiKey;
     }
 }
