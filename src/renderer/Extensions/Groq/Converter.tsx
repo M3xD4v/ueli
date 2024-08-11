@@ -5,16 +5,16 @@ import { useEffect, useState } from "react";
 
 type ConverterProps = {
     setConvertedText: (text: string) => void;
-    encodePlaceholder: string;
-    decodePlaceholder: string;
+    promptPlaceholder: string;
+    responsePlaceholder: string;
+    prompt: string;
 };
 
-export const Converter = ({ setConvertedText, encodePlaceholder, decodePlaceholder }: ConverterProps) => {
+export const Converter = ({ setConvertedText, promptPlaceholder, responsePlaceholder, prompt }: ConverterProps) => {
     const extensionId = "Groq";
     const { contextBridge } = useContextBridge();
     const [input, setInput] = useState<InvocationArgument>({ payload: "", action: "encode" });
     const [conversionResult, setConversionResult] = useState("");
-
     const convertText = async (payload: string, action: "encode" | "decode") => {
         try {
             return await contextBridge.invokeExtension<InvocationArgument, string>(extensionId, {
@@ -31,7 +31,12 @@ export const Converter = ({ setConvertedText, encodePlaceholder, decodePlacehold
         setConversionResult(result);
         setConvertedText(result);
     };
-
+    useEffect(() => {
+        if (prompt != "") {
+            input.payload=prompt
+            performConversion()
+        }
+    }, []); 
     return (
         <div
             style={{
@@ -48,7 +53,7 @@ export const Converter = ({ setConvertedText, encodePlaceholder, decodePlacehold
                     <Textarea
                         autoFocus
                         style={{ flexGrow: 1, width: "100%", height: "100%" }}
-                        placeholder={encodePlaceholder}
+                        placeholder={promptPlaceholder}
                         value={input.action === "decode" ? conversionResult : input.payload}
                         onChange={(_, { value }) => setInput({ payload: value, action: "encode" })}
                     />
@@ -57,7 +62,7 @@ export const Converter = ({ setConvertedText, encodePlaceholder, decodePlacehold
                 <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
                     <Textarea
                         style={{ flexGrow: 1, width: "100%", height: "100%" }}
-                        placeholder={decodePlaceholder}
+                        placeholder={responsePlaceholder}
                         value={input.action === "encode" ? conversionResult : input.payload}
                         onChange={(_, { value }) => setInput({ payload: value, action: "decode" })}
                     />

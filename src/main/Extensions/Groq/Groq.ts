@@ -12,6 +12,7 @@ import { getExtensionSettingKey } from "@common/Core/Extension";
 export class Groq implements Extension {
     public readonly id = "Groq";
     public readonly name = "Groq";
+    public global_prompt = "";
 
     public readonly author = {
         name: "Archient",
@@ -28,6 +29,32 @@ export class Groq implements Extension {
         apiKey: "",
         defaultLLM: "Auto",
     };
+
+  public getInstantSearchResultItems(searchTerm: string): SearchResultItem[] {
+        const parts = searchTerm.trim().replace(/(\d)([a-z])/g, '$1 $2').split(" ");
+        if (parts[0] !== ".g") {return []};
+        const prompt = parts.slice(1).join(' ')
+        this.global_prompt = prompt
+        const { t } = this.translator.createT(this.getI18nResources());
+        return [
+            {
+                defaultAction: SearchResultItemActionUtility.createInvokeExtensionAction({
+                    extensionId: this.id,
+                    description: t("searchResultItemActionDescription"),
+                    fluentIcon: "OpenRegular",
+                }),
+                description: "Prompt Groq",
+                descriptionTranslation: {
+                    key: "Prompt Groq",
+                    namespace: "buh",
+                },
+                id: `groq:instant-result`,
+                image: this.getImage(),
+                name: prompt,
+            },
+        ];
+    }
+ 
     public async getSearchResultItems(): Promise<SearchResultItem[]> {
         const { t } = this.translator.createT(this.getI18nResources());
 
@@ -76,11 +103,17 @@ export class Groq implements Extension {
                 searchResultItemName: "Groq",
                 searchResultItemActionDescription: "Open Groq Chat",
                 copyToClipboard: "Copy result to clipboard",
-                encodePlaceHolder: "Enter your prompt",
-                decodePlaceHolder: "Output",
+                promptPlaceholder: "Enter your prompt",
+                responsePlaceholder: "Response",
+                prompt: this.getPrompt(),
             }
         };
     }
+
+
+    public getPrompt(): string {
+        return this.global_prompt;
+      }
     private getApiKey(): string {
         const apiKey = this.settingsManager.getValue<string | undefined>(
             getExtensionSettingKey(this.id, "apiKey"),

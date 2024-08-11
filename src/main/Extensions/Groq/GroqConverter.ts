@@ -1,5 +1,4 @@
 import https from 'https';
-import { mode } from 'mathjs';
 
 async function getChatCompletion(prompt, apiKey, model) {
     console.log(prompt,apiKey,model)

@@ -73,8 +73,9 @@ export const Groq = ({ contextBridge, goBack }: ExtensionProps) => {
             content={
                 <Converter
                     setConvertedText={setConvertedText}
-                    encodePlaceholder={t("encodePlaceHolder", { ns })}
-                    decodePlaceholder={t("decodePlaceHolder", { ns })}
+                    promptPlaceholder={t("promptPlaceholder", { ns })}
+                    responsePlaceholder={t("responsePlaceholder", { ns })}
+                    prompt={t("prompt", { ns })}
                 />
             }
             footer={
