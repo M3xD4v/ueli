@@ -17,6 +17,7 @@ import { UeliCommandModule } from "./UeliCommand";
 import { WebSearchExtensionModule } from "./WebSearch";
 import { WindowsControlPanelModule } from "./WindowsControlPanel";
 import { WorkflowExtensionModule } from "./Workflow";
+import { GroqModule } from "./Groq";
 
 export class ExtensionLoader {
     private static getAllExtensionModules(): ExtensionModule[] {
@@ -37,6 +38,7 @@ export class ExtensionLoader {
             new WebSearchExtensionModule(),
             new WindowsControlPanelModule(),
             new WorkflowExtensionModule(),
+            new GroqModule(),
         ];
     }
 

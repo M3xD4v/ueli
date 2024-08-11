@@ -24,6 +24,7 @@ export class CurrencyConversion implements Extension {
 
     private readonly defaultSettings = {
         currencies: ["usd", "chf", "eur"],
+        defaultCurrency: ["usd"]
     };
 
     private readonly rates: Record<string, Record<string, number>>;
@@ -37,28 +38,39 @@ export class CurrencyConversion implements Extension {
     }
 
     public getInstantSearchResultItems(searchTerm: string): SearchResultItem[] {
-        const parts = searchTerm.trim().split(" ");
+        const parts = searchTerm.trim().replace(/(\d)([a-z])/g, '$1 $2').split(" ");
 
         const validators = [
-            () => parts.length === 4,
+            () => parts.length === 2 || parts.length === 4,
             () => !isNaN(Number(parts[0])),
-            () => Object.keys(this.rates).includes(parts[1].toLowerCase()),
-            () => ["in", "to"].includes(parts[2].toLowerCase()),
-            () => Object.keys(this.rates[parts[1].toLowerCase()]).includes(parts[3].toLowerCase()),
+            () => this.currencyExists(parts[1].toLowerCase())
         ];
 
+        if (parts.length === 4) {
+            validators.push(() => ["in", "to"].includes(parts[2].toLowerCase()));
+        }
+        
         for (const validator of validators) {
             if (!validator()) {
                 return [];
             }
         }
-
-        const conversionResult = this.convert({
-            value: Number(parts[0]),
-            base: parts[1],
-            target: parts[3],
-        });
-
+        const defaultCurrency = this.settingsManager.getValue(
+            getExtensionSettingKey(this.id, "defaultCurrency"),
+            this.defaultSettings.defaultCurrency,
+        )[0];
+        
+        let conversionResult;
+        if (parts.length === 2) {
+            const base = parts[1].toLowerCase();
+            const target = defaultCurrency;
+            conversionResult = this.convert({ value: Number(parts[0]), base, target });
+        } else {
+            const base = parts[1].toLowerCase();
+            const target = parts[3].toLowerCase();
+            conversionResult = this.convert({ value: Number(parts[0]), base, target });
+        }
+        
         return [
             {
                 defaultAction: SearchResultItemActionUtility.createCopyToClipboardAction({
@@ -76,10 +88,11 @@ export class CurrencyConversion implements Extension {
                 },
                 id: `currency-conversion:instant-result`,
                 image: this.getImage(),
-                name: `${conversionResult.toFixed(2)} ${parts[3].toUpperCase()}`,
+                name: `${conversionResult.toFixed(2)} ${parts.length === 2 ? defaultCurrency : parts[3].toUpperCase()}`,
             },
         ];
     }
+ 
 
     public async getSearchResultItems(): Promise<SearchResultItem[]> {
         await this.setRates();
@@ -112,6 +125,7 @@ export class CurrencyConversion implements Extension {
             "de-CH": {
                 extensionName: "Währungsumrechnung",
                 currencies: "Währungen",
+                defaultCurrency: "Standardwährung",
                 selectCurrencies: "Währungen wählen",
                 copyToClipboard: "In Zwischenablage kopieren",
                 currencyConversion: "Währungsumrechnung",
@@ -125,6 +139,10 @@ export class CurrencyConversion implements Extension {
 
     private convert({ value, base, target }: { value: number; base: string; target: string }): number {
         return value * this.rates[base.toLowerCase()][target.toLowerCase()];
+    }
+
+    private currencyExists(currency: string): boolean {
+        return Object.keys(this.rates).includes(currency.toLowerCase());
     }
 
     private async setRates(): Promise<void> {
